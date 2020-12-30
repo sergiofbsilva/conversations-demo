@@ -8,6 +8,10 @@ const app = new express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+const rnd = () => [...Array(30)].map(() => Math.random().toString(36)[2]).join('')
+
+const twilioClient = twilio(config.twilio.accountSid, config.twilio.accessToken)
+
 app.post('/token/:identity', (request, response) => {
   const identity = request.params.identity;
   const accessToken = new twilio.jwt.AccessToken(config.twilio.accountSid, config.twilio.apiKey, config.twilio.apiSecret);
@@ -21,6 +25,21 @@ app.post('/token/:identity', (request, response) => {
     token: accessToken.toJwt(),
     identity: identity
   }));
+})
+
+app.post('/conversations', async (request, response) => {
+  const identity = request.body.identity
+  const attributes = JSON.stringify({type : 'livechat'})
+  const conversation = await client.conversations.conversations.create({ attributes })
+  const participant = await client.conversations.conversations(conversation.sid).participants.create({ xTwilioWebhookEnabled: true, identity, attributes })
+
+  const resp = {
+    conversation, 
+    participant
+  }
+
+  response.set('Content-Type', 'application/json');
+  response.send(JSON.stringify(resp));
 })
 
 app.listen(config.port, () => {

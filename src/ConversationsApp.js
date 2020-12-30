@@ -22,7 +22,7 @@ class ConversationsApp extends React.Component {
     const loggedIn = name !== "";
 
     this.state = {
-      name,
+      name : name,
       loggedIn,
       token: null,
       statusString: null,
@@ -31,6 +31,25 @@ class ConversationsApp extends React.Component {
       selectedConversationSid: null,
       newMessage: ""
     };
+  }
+
+  newConversationClick = async () => {
+    const payload = JSON.stringify({
+      identity : this.state.name
+    });
+
+    console.log(`New conversation clicked: creating conversation for ${payload}`);
+
+    const response = await fetch(`/conversations`, {
+      "method": "POST",
+      headers: { 
+        'Content-Type' : 'application/json'
+      },
+      body: payload
+    });
+
+    const conversation = await response.json();
+    console.log(`Conversation created: ${JSON.stringify(conversation)}`)
   }
 
   componentDidMount = () => {
@@ -66,9 +85,13 @@ class ConversationsApp extends React.Component {
     this.conversationsClient.shutdown();
   };
 
-  getToken = () => {
-    // Paste your unique Chat token function
-    const myToken = "<Your token here>";
+  getToken = async () => {
+      const response = await fetch(`/token/${this.state.name}`, {
+      "method": "POST"
+    });
+    const resJson = await response.json();
+    const myToken = resJson['token']
+    console.log(`Got token for ${this.state.name}`);
     this.setState({ token: myToken }, this.initConversations);
   };
 
@@ -201,6 +224,9 @@ class ConversationsApp extends React.Component {
                     this.setState({ selectedConversationSid: item.sid });
                   }}
                 />
+                <Content>
+                  <button onClick={this.newConversationClick}>New Conversation</button>
+                </Content>
               </Sider>
               <Content className="conversation-section">
                 <div id="SelectedConversation">{conversationContent}</div>

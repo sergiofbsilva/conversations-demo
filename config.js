@@ -12,6 +12,5 @@ module.exports = {
     apiSecret: process.env.TWILIO_API_SECRET,
     chatServiceSid: process.env.TWILIO_CHAT_SERVICE_SID
   },
-  port: process.env.PORT || 3001,
-  ngrokSubdomain: 'ajtack'
+  port: process.env.PORT || 3002
 }

@@ -2,7 +2,6 @@ const config     = require('./config');
 const express    = require('express');
 const bodyParser = require('body-parser');
 const twilio     = require('twilio');
-const ngrok      = require('ngrok');
 
 const app = new express();
 app.use(bodyParser.json());
@@ -76,17 +75,3 @@ app.post('/outbound-status', (req, res) => {
   res.sendStatus(200);
 })
 
-
-
-var ngrokOptions = {
-  proto: 'http',
-  addr: config.port
-};
-
-if (config.ngrokSubdomain) {
-  ngrokOptions.subdomain = config.ngrokSubdomain
-}
-
-ngrok.connect(ngrokOptions).then(url => {
-  console.log('ngrok url is ' + url);
-}).catch(console.error);
